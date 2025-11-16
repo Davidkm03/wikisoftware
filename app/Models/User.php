@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +45,52 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relationships
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(Document::class, 'favorites')->withTimestamps();
+    }
+
+    public function documentViews()
+    {
+        return $this->hasMany(DocumentView::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class);
+    }
+
+    // Helper methods for roles
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isEditor(): bool
+    {
+        return $this->role === 'editor';
+    }
+
+    public function isViewer(): bool
+    {
+        return $this->role === 'viewer';
+    }
+
+    public function canEdit(): bool
+    {
+        return in_array($this->role, ['admin', 'editor']);
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->role === 'admin';
     }
 }

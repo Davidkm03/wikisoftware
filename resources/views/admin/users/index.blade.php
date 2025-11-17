@@ -3,6 +3,12 @@
 @section('title', 'User Management')
 
 @section('content')
+<!-- Breadcrumbs -->
+<x-breadcrumbs :items="[
+    ['label' => 'Admin', 'url' => route('admin.users.index')],
+    ['label' => 'Users']
+]" />
+
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
     <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">

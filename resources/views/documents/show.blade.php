@@ -5,6 +5,12 @@
 @section('content')
 <div class="py-6">
     <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs -->
+        <x-breadcrumbs :items="[
+            ['label' => 'Documents', 'url' => route('documents.index')],
+            ['label' => $document->title]
+        ]" />
+
         <!-- Header -->
         <div class="md:flex md:items-center md:justify-between">
             <div class="min-w-0 flex-1">

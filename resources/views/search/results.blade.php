@@ -5,6 +5,11 @@
 @section('content')
 <div class="py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs -->
+        <x-breadcrumbs :items="[
+            ['label' => 'Search Results']
+        ]" />
+
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-gray-900">Search Results</h2>
             <p class="mt-2 text-sm text-gray-600">

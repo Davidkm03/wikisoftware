@@ -5,6 +5,12 @@
 @section('content')
 <div class="py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs -->
+        <x-breadcrumbs :items="[
+            ['label' => 'Documents', 'url' => route('documents.index')],
+            ['label' => $category->name]
+        ]" />
+
         <!-- Category Header -->
         <div class="mb-8">
             <div class="flex items-center mb-4">

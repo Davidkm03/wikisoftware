@@ -4,11 +4,12 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    <div class="mb-6">
-        <a href="{{ route('admin.users.index') }}" class="text-indigo-600 hover:text-indigo-900">
-            &larr; Back to Users
-        </a>
-    </div>
+    <!-- Breadcrumbs -->
+    <x-breadcrumbs :items="[
+        ['label' => 'Admin', 'url' => route('admin.users.index')],
+        ['label' => 'Users', 'url' => route('admin.users.index')],
+        ['label' => 'Create']
+    ]" />
 
     <div class="bg-white shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:p-6">

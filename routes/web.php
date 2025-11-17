@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
 
     // Documents
     Route::resource('documents', DocumentController::class);
+    Route::get('/documents/{document}/pdf', [DocumentController::class, 'exportPdf'])->name('documents.pdf');
 
     // Categories
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');

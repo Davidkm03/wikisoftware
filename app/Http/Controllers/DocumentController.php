@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Document;
 use App\Models\DocumentView;
 use App\Models\Tag;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -158,5 +159,21 @@ class DocumentController extends Controller
 
         return redirect()->route('documents.index')
             ->with('success', 'Document deleted successfully!');
+    }
+
+    public function exportPdf(Document $document)
+    {
+        $this->authorize('view', $document);
+
+        // Load relationships
+        $document->load(['category', 'author', 'tags', 'attachments']);
+
+        // Generate PDF
+        $pdf = Pdf::loadView('documents.pdf', compact('document'));
+
+        // Download with proper filename
+        $filename = Str::slug($document->title) . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

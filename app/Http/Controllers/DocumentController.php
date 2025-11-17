@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DocumentPublished;
 use App\Models\Category;
 use App\Models\Document;
 use App\Models\DocumentView;
@@ -83,6 +84,11 @@ class DocumentController extends Controller
         // Create initial version
         $document->createVersion($request->user(), 'Initial version');
 
+        // Dispatch event if document is published
+        if ($document->status === 'published') {
+            event(new DocumentPublished($document));
+        }
+
         return redirect()->route('documents.show', $document)
             ->with('success', 'Document created successfully!');
     }
@@ -136,6 +142,9 @@ class DocumentController extends Controller
             $document->createVersion($request->user(), $validated['change_summary'] ?? 'Document updated');
         }
 
+        // Check if status changed to published
+        $wasPublished = $document->status !== 'published' && $validated['status'] === 'published';
+
         $document->update([
             'title' => $validated['title'],
             'excerpt' => $validated['excerpt'],
@@ -146,6 +155,11 @@ class DocumentController extends Controller
         ]);
 
         $document->tags()->sync($validated['tags'] ?? []);
+
+        // Dispatch event if document was just published
+        if ($wasPublished) {
+            event(new DocumentPublished($document));
+        }
 
         return redirect()->route('documents.show', $document)
             ->with('success', 'Document updated successfully!');

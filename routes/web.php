@@ -38,6 +38,8 @@ Route::middleware('auth')->group(function () {
     // Documents
     Route::resource('documents', DocumentController::class);
     Route::get('/documents/{document}/pdf', [DocumentController::class, 'exportPdf'])->name('documents.pdf');
+    Route::get('/documents/{document}/history', [DocumentController::class, 'history'])->name('documents.history');
+    Route::post('/documents/{document}/restore/{version}', [DocumentController::class, 'restore'])->name('documents.restore');
 
     // Categories
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');

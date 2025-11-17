@@ -176,4 +176,50 @@ class DocumentController extends Controller
 
         return $pdf->download($filename);
     }
+
+    public function history(Document $document)
+    {
+        $this->authorize('view', $document);
+
+        $versions = $document->versions()
+                             ->with('user')
+                             ->orderBy('version_number', 'desc')
+                             ->get();
+
+        return view('documents.history', compact('document', 'versions'));
+    }
+
+    public function restore(Document $document, $versionId)
+    {
+        $this->authorize('update', $document);
+
+        $version = $document->versions()->findOrFail($versionId);
+
+        // Create a new version before restoring
+        $document->versions()->create([
+            'user_id' => auth()->id(),
+            'version_number' => $document->versions()->max('version_number') + 1,
+            'title' => $document->title,
+            'content' => $document->content,
+            'change_summary' => 'Backup before restoring to version ' . $version->version_number,
+        ]);
+
+        // Restore the document
+        $document->update([
+            'title' => $version->title,
+            'content' => $version->content,
+        ]);
+
+        // Create another version entry for the restoration
+        $document->versions()->create([
+            'user_id' => auth()->id(),
+            'version_number' => $document->versions()->max('version_number') + 1,
+            'title' => $version->title,
+            'content' => $version->content,
+            'change_summary' => 'Restored from version ' . $version->version_number,
+        ]);
+
+        return redirect()->route('documents.show', $document)
+                         ->with('success', 'Document restored to version ' . $version->version_number . ' successfully!');
+    }
 }

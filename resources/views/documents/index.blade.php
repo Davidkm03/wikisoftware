@@ -3,7 +3,13 @@
 @section('title', 'Documents')
 
 @section('content')
-<div class="py-6">
+<div class="py-6" x-data="{
+    viewMode: localStorage.getItem('documentsViewMode') || 'grid',
+    setViewMode(mode) {
+        this.viewMode = mode;
+        localStorage.setItem('documentsViewMode', mode);
+    }
+}">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
         <x-breadcrumbs :items="[
@@ -17,8 +23,26 @@
                     Documents
                 </h2>
             </div>
-            @can('create', App\Models\Document::class)
-                <div class="mt-4 flex md:ml-4 md:mt-0">
+            <div class="mt-4 flex gap-3 md:ml-4 md:mt-0">
+                <!-- View Toggle -->
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                    <button @click="setViewMode('grid')" type="button"
+                        :class="viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-l-md focus:z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                    </button>
+                    <button @click="setViewMode('list')" type="button"
+                        :class="viewMode === 'list' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        class="px-3 py-2 text-sm font-medium border-t border-r border-b border-gray-300 rounded-r-md focus:z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                @can('create', App\Models\Document::class)
                     <a href="{{ route('documents.create') }}"
                         class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
                         <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,8 +50,8 @@
                         </svg>
                         New Document
                     </a>
-                </div>
-            @endcan
+                @endcan
+            </div>
         </div>
 
         <!-- Filters -->
@@ -44,8 +68,8 @@
             @endforeach
         </div>
 
-        <!-- Documents Grid -->
-        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Grid View -->
+        <div x-show="viewMode === 'grid'" class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @forelse($documents as $document)
                 <div class="relative rounded-lg border border-gray-300 bg-white p-6 shadow-sm hover:border-indigo-400 hover:shadow-md transition">
                     <div class="flex items-start justify-between">
@@ -87,6 +111,53 @@
                     <p class="text-gray-500">No documents found.</p>
                 </div>
             @endforelse
+        </div>
+
+        <!-- List View -->
+        <div x-show="viewMode === 'list'" x-cloak class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+            <ul class="divide-y divide-gray-200">
+                @forelse($documents as $document)
+                    <li>
+                        <a href="{{ route('documents.show', $document) }}" class="block hover:bg-gray-50 transition">
+                            <div class="px-6 py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-lg font-semibold text-gray-900 truncate">{{ $document->title }}</h3>
+                                        <p class="mt-1 text-sm text-gray-500 line-clamp-2">{{ strip_tags($document->excerpt) }}</p>
+
+                                        @if($document->tags->count() > 0)
+                                            <div class="mt-2 flex flex-wrap gap-1">
+                                                @foreach($document->tags->take(5) as $tag)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                                                        {{ $tag->name }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="ml-6 flex flex-col items-end space-y-2">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-{{ $document->category->color }}-100 text-{{ $document->category->color }}-800">
+                                            {{ $document->category->name }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span>by {{ $document->author->name }}</span>
+                                        <span>👁️ {{ $document->views_count }} views</span>
+                                        <span>⏱️ {{ $document->reading_time }} min read</span>
+                                    </div>
+                                    <span>📅 {{ $document->created_at->format('M d, Y') }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                @empty
+                    <li class="px-6 py-12 text-center text-gray-500">
+                        No documents found.
+                    </li>
+                @endforelse
+            </ul>
         </div>
 
         <!-- Pagination -->

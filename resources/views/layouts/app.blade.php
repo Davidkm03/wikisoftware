@@ -38,6 +38,21 @@
                                 <a href="{{ route('favorites.index') }}" class="@if(request()->routeIs('favorites.*')) bg-indigo-700 @endif text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium">
                                     Favorites
                                 </a>
+                                @if(auth()->user()->isAdmin())
+                                    <div x-data="{ adminOpen: false }" class="relative inline-block text-left">
+                                        <button @click="adminOpen = !adminOpen" type="button" class="@if(request()->routeIs('admin.*')) bg-indigo-700 @endif text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                                            Admin
+                                            <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                        <div x-show="adminOpen" @click.away="adminOpen = false" x-cloak
+                                            class="absolute left-0 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                                            <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Users</a>
+                                            <a href="{{ route('admin.categories.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Categories</a>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -62,6 +77,15 @@
 
                                 <div x-show="open" @click.away="open = false" x-cloak
                                     class="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                                    @if(auth()->user()->isAdmin())
+                                        <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Manage Users
+                                        </a>
+                                        <a href="{{ route('admin.categories.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Manage Categories
+                                        </a>
+                                        <div class="border-t border-gray-100"></div>
+                                    @endif
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

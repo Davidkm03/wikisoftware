@@ -54,7 +54,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
 
     // Admin routes
-    Route::middleware('role:admin')->group(function () {
-        // User management, category management, etc. can be added here
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        // User management
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+        // Category management
+        Route::resource('categories', \App\Http\Controllers\Admin\CategoryAdminController::class);
     });
 });
